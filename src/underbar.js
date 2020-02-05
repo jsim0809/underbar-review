@@ -230,6 +230,17 @@
   // provided, provide a default one
   _.some = function(collection, iterator) {
     // TIP: There's a very clever way to re-use every() here.
+    return !_.every(collection, function(element) {
+      if (iterator === undefined) {
+        if (element) {
+          return false;
+        } else {
+          return true;
+        }
+      } else {
+        return !iterator(element);
+      }
+    });
   };
 
 
@@ -252,11 +263,25 @@
   //     bla: "even more stuff"
   //   }); // obj1 now contains key1, key2, key3 and bla
   _.extend = function(obj) {
+    for (var i = 1; i < arguments.length; i++) {
+      for (var k in arguments[i]) {
+        obj[k] = arguments[i][k];
+      }
+    }
+    return obj;
   };
 
   // Like extend, but doesn't ever overwrite a key that already
   // exists in obj
   _.defaults = function(obj) {
+    for (var i = 1; i < arguments.length; i++) {
+      for (var k in arguments[i]) {
+        if (!(k in obj)) {
+          obj[k] = arguments[i][k];
+        }
+      }
+    }
+    return obj;
   };
 
 
@@ -300,6 +325,25 @@
   // already computed the result for the given argument and return that value
   // instead if possible.
   _.memoize = function(func) {
+    var values = {};
+
+    return function() {
+      var paramString = JSON.stringify(Array.from(arguments));
+      var numOfParam = arguments.length;
+      var result;      
+      if (!(values[paramString])) {
+        values[paramString] = {};
+      }
+      if (!(values[paramString][numOfParam])) {
+        result = func.apply(this, arguments);
+        values[paramString][numOfParam] = result;
+      } else {
+        result = values[paramString][numOfParam]; 
+      }
+
+      return result;
+  
+    };
   };
 
   // Delays a function for the given number of milliseconds, and then calls
@@ -309,6 +353,8 @@
   // parameter. For example _.delay(someFunction, 500, 'a', 'b') will
   // call someFunction('a', 'b') after 500ms
   _.delay = function(func, wait) {
+    
+    setTimeout(func, wait);
   };
 
 
